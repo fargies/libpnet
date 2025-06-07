@@ -309,7 +309,7 @@ fn queries_length(packet: &DnsPacket) -> usize {
 fn responses_length(packet: &DnsPacket) -> usize {
     let base = 12 + queries_length(packet);
     let mut length = 0;
-    for _ in 0..packet.get_query_count() {
+    for _ in 0..packet.get_response_count() {
         match DnsResponsePacket::new(&packet.packet()[base + length..]) {
             Some(query) => length += query.packet_size(),
             None => break,
@@ -321,7 +321,7 @@ fn responses_length(packet: &DnsPacket) -> usize {
 fn authority_length(packet: &DnsPacket) -> usize {
     let base = 12 + queries_length(packet) + responses_length(packet);
     let mut length = 0;
-    for _ in 0..packet.get_query_count() {
+    for _ in 0..packet.get_authority_rr_count() {
         match DnsResponsePacket::new(&packet.packet()[base + length..]) {
             Some(query) => length += query.packet_size(),
             None => break,
@@ -333,7 +333,7 @@ fn authority_length(packet: &DnsPacket) -> usize {
 fn additional_length(packet: &DnsPacket) -> usize {
     let base = 12 + queries_length(packet) + responses_length(packet) + authority_length(packet);
     let mut length = 0;
-    for _ in 0..packet.get_query_count() {
+    for _ in 0..packet.get_additional_rr_count() {
         match DnsResponsePacket::new(&packet.packet()[base + length..]) {
             Some(query) => length += query.packet_size(),
             None => break,
