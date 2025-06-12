@@ -454,7 +454,8 @@ impl DnsQuery {
 
 #[packet]
 pub struct DnsResponse {
-    pub name_tag: u16be,
+    #[length_fn = "rname_length"]
+    pub rname: Vec<u8>,
     #[construct_with(u16be)]
     pub rtype: DnsType,
     #[construct_with(u16be)]
@@ -465,6 +466,14 @@ pub struct DnsResponse {
     pub data: Vec<u8>,
     #[payload]
     pub payload: Vec<u8>,
+}
+
+fn rname_length(packet: &DnsResponsePacket) -> usize {
+    let rname = packet.packet();
+    match rname.first() {
+        Some(byte) if (byte & 0xC0) == 0xC0 => 2,
+        _ => rname.iter().take_while(|w| *w != &0).count() + 1
+    }
 }
 
 #[test]
