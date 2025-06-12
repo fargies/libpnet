@@ -1049,7 +1049,7 @@ fn handle_vec_primitive(
         let check_len = if field.packet_length.is_some() {
             format!(
                 "let len = {packet_length};
-                                             assert!(vals.len() <= len);",
+                                             assert!(vals.len() == len);",
                 packet_length = field.packet_length.as_ref().unwrap()
             )
         } else {
@@ -1089,9 +1089,9 @@ fn handle_vec_primitive(
                                     let mut _self = self;
                                     let current_offset = {co};
 
-                                    {check_len}
-
                                     {copy_vals}
+
+                                    {check_len}
                                }}",
             mutators = mutators,
             name = field.name,

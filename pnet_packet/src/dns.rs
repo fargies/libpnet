@@ -558,3 +558,25 @@ fn test_dns_response() {
     assert_eq!(packet.get_rclass(), DnsClasses::IN);
     assert_eq!(packet.get_ttl(), 60);
 }
+
+#[test]
+fn test_dns_mutable_response() {
+    let data = b"\xc0\x0c\x00\x01\x00\x01\x00\x00\x00<\x00\x04\x0d\xe2\x02\x12";
+
+    let mut buffer = Vec::new();
+    buffer.resize(data.len(), 0);
+    let mut packet =
+        MutableDnsResponsePacket::owned(buffer).expect("Failed to create packet");
+    packet.set_rname(b"\xc0\x0c");
+    packet.set_rtype(DnsTypes::A);
+    packet.set_rclass(DnsClasses::IN);
+    packet.set_ttl(60);
+    packet.set_data_len(4);
+    packet.set_data(&[13, 226, 2, 18]);
+
+    assert_eq!(packet.packet_size(), data.len());
+    assert_eq!(
+        packet.to_immutable(),
+        DnsResponsePacket::new(data).expect("Failed to parse packet")
+    );
+}
